@@ -1,0 +1,77 @@
+@model MVCTask.Models.Order
+
+<h1>Details</h1>
+
+<div>
+    <h4>Order</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Id
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CustomerName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CustomerName)
+        </dd>
+        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+    </dl>
+</div>
+<hr/>
+<h4>Order Items</h4>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>
+            ID
+        </th>
+        <th>
+            Image
+        </th>
+        <th>
+            Name
+        </th>
+    </tr>
+    </thead>
+    
+    <tbody>
+    @foreach (var item in Model.OrderItems) {
+        <tr>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Product.Id)
+            </td>
+            <td>
+                <img style="width: 50px" src="@item.Product.ImgPath.Split("wwwroot").Last()"/>
+            </td>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Product.Name)
+            </td>
+        </tr>
+    }
+    </tbody>
+    
+</table>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+@section Scripts
+{
+    <script>
+        const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        console.log(products);
+    </script>
+}

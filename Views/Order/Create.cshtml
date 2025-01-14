@@ -1,0 +1,235 @@
+@model MVCTask.DTOs.OrderDto
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" id="orderForm">
+
+            <div class="form-group mb-3">
+                <label for="CustomerName" class="form-label">Customer Name</label>
+                <input class="form-control" id="CustomerName" name="CustomerName"/>
+                @* <span asp-validation-for="Name" class="text-danger"></span> *@
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div class="form-group mx-1">
+                    <label for="productSelect" class="form-label">Product</label>
+                    <select class="form-select" id="productSelect" asp-for="SelectedProductId" asp-items="@(new SelectList(Model.Products, "Id", "Name"))">
+                        <option value="">-- Select a product --</option>
+                    </select>
+                </div>
+
+                <div class="form-group mx-1">
+                    <label for="productPrice" class="form-label">Price</label>
+                    <input type="text" id="productPrice" value="@Model.SelectedProductPrice" disabled class="disabled form-control"/>
+                </div>
+
+
+                <div class="form-group disabled mx-1">
+                    <label class="form-label" for="Quantity">Quantity</label>
+                    <input class="form-control" id="Quantity" type="number" min="1" value="1"/>
+                </div>
+                
+                <div class="form-group mx-1">
+                    <label for="productPrice" class="form-label">Total</label>
+                    <input type="text" id="TotalProductPrice" value="@Model.SelectedProductPrice" disabled class="disabled form-control"/>
+                </div>
+
+                <div class="mx-1">
+                    <button type="button" class="btn btn-primary" id="addButton">Add</button>
+                    @* <button type="button" class="btn btn-primary" onclick="addOrderItem()">Add</button> *@
+                </div>
+
+            </div>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>
+                            Product Id
+                        </th>
+                        <th>
+                            Image
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                        <th>
+                            Quantity
+                        </th>
+                        <th>
+                            Total
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="orderItems">
+                    </tbody>
+                </table>
+        </form>
+
+    </div>
+    <hr/>
+    <h5>Total: <h5 id="TheTotalPrice"></h5> </h5>
+    
+    <div class="d-flex justify-content-center">
+        @*<button class="btn btn-primary mx-2" asp-controller="Order" asp-action="Create" type="submit" form="orderForm">Save</button>*@
+        <button class="btn btn-primary mx-2" onclick="Save()">Save</button>
+        <button class="btn btn-danger mx-2">Cancel</button>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts
+{
+    <script>
+
+        let TheFinalTest = {CustomerName: "", OrderItems: []};
+        let TheFinalCustomerName = "Test";
+        let TheFinalTotalPrice = 0;
+
+        $(document).ready(function () {
+
+            const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Products));
+            let originalPrice;
+            let theTotalPrice = 0;
+            let totalOrder;
+            let itemIndex = 0;
+            let addedProductIds = [];
+            
+            console.log(products);
+            
+            @*$('#CustomerName').change(() => {
+                TheFinalCustomerName = this;
+            })
+            
+            $('#CustomerName').keydown(() => {
+                TheFinalCustomerName = this;
+            })*@
+
+            $('#productSelect').change(function () {
+
+                const selectedId = parseInt($(this).val());
+                const selectedProduct = products.find(p => p.Id === selectedId);
+
+                console.log(selectedId);
+                console.log(selectedProduct);
+
+                if (selectedProduct)
+                {
+                    $('#productPrice').val(selectedProduct.Price);
+                    $('#TotalProductPrice').val(selectedProduct.Price * parseInt($('#Quantity').val()));
+                    originalPrice = $('#productPrice').val(selectedProduct.Price * parseInt($('#Quantity').val())).val();
+                }
+                else
+                {
+                    $('#productPrice').val('');
+                }
+            })
+
+            $('#Quantity').change(function () {
+
+                const qtn = parseInt($(this).val());
+
+                console.log(qtn);
+                console.log('original price', originalPrice);
+
+                $('#TotalProductPrice').val(originalPrice * qtn);
+
+            })
+
+            $('#addButton').click(function () {
+
+                const selectedId = parseInt($('#productSelect').val());
+                addedProductIds.push(selectedId);
+                const selectedProduct = products.find(product => product.Id == selectedId);
+                const quantity = parseInt($('#Quantity').val()) || 0;
+                const total = parseInt($('#productPrice').val() * quantity) || 0;
+                console.log('this is the total',total)
+                
+                theTotalPrice += total;
+
+                TheFinalTest.OrderItems.push({ProductId: selectedId, Quantity: quantity})
+
+                @*$('#orderItems').append(`<tr>
+                                        <td><input class="form-control" type="text" name="OrderItems[${itemIndex}].ProductId"/ value=${selectedProduct.Id} disabled></td>
+                                        <td>${selectedProduct.Id}</td>
+                                        <td><img src="${selectedProduct.ImgPath.split("wwwroot")[1]}" style="width: 40px"></td>
+                                        <td>${selectedProduct.Name}</td>
+                                        <td>${selectedProduct.Price}</td>
+                                        <td>${quantity}</td>
+                                        <td>${total}</td>
+                                        <td class="d-flex"><button class="btn btn-primary mx-1">Edit</button><button class="btn btn-danger mx-1">Remove</button></td>
+                                        </tr>`)*@
+
+                $('#orderItems').append(`<tr>
+                                        <td><input class="form-control disabled" type="text" name="OrderItems[${itemIndex}].ProductId" value=${selectedProduct.Id} disabled></td>
+                                        <td><img src="${selectedProduct.ImgPath.split("wwwroot")[1]}" style="width: 40px"></td>
+                                        <td>${selectedProduct.Name}</td>
+                                        <td>${selectedProduct.Price}</td>
+                                        <td><input class="form-control disabled" type="text" name="OrderItems[${itemIndex}].Quantity" value=${quantity} disabled></td>
+                                        <td>${total}</td>
+                                        <td class="d-flex"><button class="btn btn-primary mx-1">Edit</button><button type="button" class="btn btn-danger mx-1" onclick="removeRow(this)">Remove</button></td>
+                                        </tr>`)
+    
+                updateOrderTotal();
+                
+                $('#Quantity').val(1);
+                $('#productPrice').val(0);
+                @*$('#TheTotalPrice').text(theTotalPrice);*@
+                itemIndex++;
+                
+                localStorage.setItem("Order", selectedProduct);
+
+            })
+
+            $("#CustomerName").on("input", function () {
+                // Get the current value of the input field
+                TheFinalCustomerName = $(this).val();
+                // Display the value in the paragraph
+                $("#output").text("You entered: " + inputValue);
+            });
+            
+        })
+        
+        function Save()
+        {
+            console.log(TheFinalTest);
+            TheFinalTest.CustomerName = TheFinalCustomerName;
+            fetch('https://localhost:44386/Order/Create', {method: 'POST', headers: {'Content-Type': 'application/json'}, body:JSON.stringify(TheFinalTest) },).then(res => console.log(res))
+        }
+
+        function removeRow(button)
+        {
+            const row = button.closest('tr');
+            row.remove();
+            updateOrderTotal();
+        }
+        
+        function updateOrderTotal() {
+            var total = 0;
+            $("#orderItems tr").each(function () {
+                var itemTotal = parseFloat($(this).find("td:nth-child(6)").text()) || 0;
+                total += itemTotal;
+            });
+            $("#TheTotalPrice").text(total.toFixed(2));
+            
+        }
+
+    </script>
+
+}
+

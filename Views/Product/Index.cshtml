@@ -1,0 +1,47 @@
+@model IEnumerable<MVCTask.Models.Product>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Products</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>
+            Image
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Price
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>
+                <img src="@item.ImgPath?.Split("wwwroot").Last()" alt="Alternate Text" width="100px" style="object-fit: cover;"/>
+            </td>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" class="btn btn-info" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

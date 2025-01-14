@@ -1,0 +1,46 @@
+@model IEnumerable<MVCTask.Models.Order>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Orders</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>
+            ID
+        </th>
+        <th>
+            Customer Name
+        </th>
+        <th>
+            Date
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.CustomerName)
+            </td>
+            <td style="font-weight: bold">
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                <a asp-action="Edit" class="btn btn-warning" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" class="btn btn-info" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
